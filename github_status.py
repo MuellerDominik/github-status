@@ -77,7 +77,7 @@ def main():
         if now.minute >= 30:
             sleep_time += 30
 
-        sleep(sleep_time * 60 - now.second)
+        sleep(sleep_time * 60 - now.second - now.microsecond/1000000)
 
 if __name__ == '__main__':
     main()
