@@ -62,22 +62,37 @@ def update_status_emoji(time):
 
 def main():
     while True:
-        # Update the status emoji
+        # Current time
         now = curr_time()
         ts = time_suffix(now)
-        transaction = update_status_emoji(ts)
+
+        # Try to update the status emoji
+        try:
+            transaction = update_status_emoji(ts)
+        except Exception as e:
+            transaction = 'Transaction error: ' + str(e)
+            updated = False
+        else:
+            updated = True
 
         # Transaction log
         with open('transaction.log', 'a') as f:
             f.write(str(now) + ': ' + str(transaction) + '\n')
 
-        # Sleep until the next hour or half-hour
+        # Time until the next hour or half-hour
         now = curr_time()
         sleep_time = 30 - now.minute
         if now.minute >= 30:
             sleep_time += 30
 
-        sleep(sleep_time * 60 - now.second - now.microsecond/1000000)
+        sleep_time = sleep_time * 60 - now.second - now.microsecond/1000000
+
+        # Retry after 1 min in case of a transaction error
+        if not updated:
+            sleep_time = 60
+
+        # Sleep
+        sleep(sleep_time)
 
 if __name__ == '__main__':
     main()
